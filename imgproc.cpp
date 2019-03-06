@@ -10,6 +10,17 @@ double ArcLength(Contour curve, bool is_closed) {
     return cv::arcLength(pts, is_closed);
 }
 
+bool IsContourConvex(Contour curve) {
+    std::vector<cv::Point> pts;
+    pts.reserve(curve.length);
+
+    for (size_t i = 0; i < curve.length; i++) {
+        pts.push_back(cv::Point(curve.points[i].x, curve.points[i].y));
+    }
+
+    return cv::isContourConvex(pts);
+}
+
 Contour ApproxPolyDP(Contour curve, double epsilon, bool closed) {
     std::vector<cv::Point> curvePts;
 
