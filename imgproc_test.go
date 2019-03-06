@@ -76,6 +76,40 @@ func TestConvexity(t *testing.T) {
 	}
 }
 
+func TestFloodFill(t *testing.T) {
+	img := IMRead("images/circles.jpg", IMReadColor)
+	if img.Empty() {
+		t.Error("Invalid read of Mat in FloodFill test")
+	}
+	defer img.Close()
+
+	red := color.RGBA{
+		R:255,
+		G:0,
+		B:0,
+		A:255,
+	}
+
+	black := color.RGBA{}
+
+	_, rect := FloodFill(img, nil, image.Pt(1,1), red, black, black, 0)
+
+	if rect.Size().X != img.Cols() || rect.Size().Y != img.Rows() {
+		t.Errorf("Invalid FloodFill test, expected fill size to be %vx%v, got %v", img.Cols(),img.Rows(), rect.Size())
+	}
+
+	goImg, err := img.ToImage()
+	if err != nil {
+		t.Errorf("Invalid ToImage in FloodFill test")
+	}
+
+	filled := (goImg.At(1,1)).(color.RGBA)
+
+	if filled.R != 255 || filled.G != 0 || filled.B != 0 || filled.A != 255 {
+		t.Errorf("Invalid color in FloodFill test. Expected red, got RGBA: %v,%v,%v,%v", filled.R, filled.G, filled.B, filled.A)
+	}
+}
+
 func TestCvtColor(t *testing.T) {
 	img := IMRead("images/face-detect.jpg", IMReadColor)
 	if img.Empty() {
