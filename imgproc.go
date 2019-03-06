@@ -796,6 +796,64 @@ func AdaptiveThreshold(src Mat, dst *Mat, maxValue float32, adaptiveTyp Adaptive
 	C.AdaptiveThreshold(src.p, dst.p, C.double(maxValue), C.int(adaptiveTyp), C.int(typ), C.int(blockSize), C.double(c))
 }
 
+type FloodFillFlag int
+const (
+	// If set, the difference between the current pixel and seed pixel is considered. Otherwise,
+	// the difference between neighbor pixels is considered (that is, the range is floating).
+	FloodfillFixedRange FloodFillFlag = 1 << 16
+	// If set, the function does not change the image ( newVal is ignored), and only fills the
+	// mask with the value specified in bits 8-16 of flags as described above. This option only make
+	// sense in function variants that have the mask parameter.
+	FloodfillMaskOnly FloodFillFlag = 1 << 17
+)
+
+// Fills a connected component with the given color.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d7/d1b/group__imgproc__misc.html#ga366aae45a6c1289b341d140839f18717
+//
+func FloodFill(src Mat, mask *Mat, seedPoint image.Point, c color.RGBA, loDiff, upDiff color.RGBA, flags FloodFillFlag) (int, image.Rectangle) {
+
+	cSeedPoint := C.struct_Point{
+		x: C.int(seedPoint.X),
+		y: C.int(seedPoint.Y),
+	}
+
+	cColor := C.struct_Scalar{
+		val1: C.double(c.B),
+		val2: C.double(c.G),
+		val3: C.double(c.R),
+		val4: C.double(c.A),
+	}
+
+	cLoDiff := C.struct_Scalar{
+		val1: C.double(loDiff.B),
+		val2: C.double(loDiff.G),
+		val3: C.double(loDiff.R),
+		val4: C.double(loDiff.A),
+	}
+
+	cUpDiff := C.struct_Scalar{
+		val1: C.double(upDiff.B),
+		val2: C.double(upDiff.G),
+		val3: C.double(upDiff.R),
+		val4: C.double(upDiff.A),
+	}
+
+	cRect := C.struct_Rect{}
+
+	if mask == nil {
+		emptyMask := NewMat()
+		mask = &emptyMask
+	}
+
+	cRet := C.FloodFill(src.p, mask.p, cSeedPoint, cColor, &cRect, cLoDiff, cUpDiff, C.int(flags))
+
+	rect := image.Rect(int(cRect.x), int(cRect.y), int(cRect.x+cRect.width), int(cRect.y+cRect.height))
+
+	return int(cRet), rect
+}
+
 // ArrowedLine draws a arrow segment pointing from the first point
 // to the second one.
 //
