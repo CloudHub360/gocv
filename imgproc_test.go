@@ -54,6 +54,11 @@ func TestConvexity(t *testing.T) {
 		t.Errorf("Invalid ContourArea test: %f", area)
 	}
 
+	convex := IsContourConvex(res[0])
+	if convex == true {
+		t.Errorf("Invalid IsContourConvex test")
+	}
+
 	hull := NewMat()
 	defer hull.Close()
 

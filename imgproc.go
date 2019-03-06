@@ -54,6 +54,20 @@ func ApproxPolyDP(curve []image.Point, epsilon float64, closed bool) (approxCurv
 	return approxCurve
 }
 
+// Tests a contour convexity.
+//
+// For further details, please see:
+//
+// https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga8abf8010377b58cbc16db6734d92941b
+//
+func IsContourConvex(points []image.Point) bool {
+	cPoints := toCPoints(points)
+
+	cIsConvex := C.IsContourConvex(cPoints)
+
+	return bool(cIsConvex)
+}
+
 // ConvexHull finds the convex hull of a point set.
 //
 // For further details, please see:
